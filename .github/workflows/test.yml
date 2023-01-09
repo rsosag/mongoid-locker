@@ -14,6 +14,7 @@ jobs:
           - { ruby: '2.7', mongodb: '4.4', gemfile: 'mongoid-6.0' }
           - { ruby: '2.7', mongodb: '4.4', gemfile: 'mongoid-7.0' }
           - { ruby: '3.1', mongodb: '4.4', gemfile: 'mongoid-8.0' }
+          - { ruby: '3.1', mongodb: '4.4', gemfile: 'mongoid-8.1' }
 
     name: test (ruby=${{ matrix.entry.ruby }}, mongodb=${{ matrix.entry.mongodb }}), gemfile=${{ matrix.entry.gemfile }})
 
