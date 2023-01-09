@@ -16,15 +16,15 @@ jobs:
           - { ruby: '2.7', mongodb: '4.4', mongoid: '7.0' }
           - { ruby: '3.1', mongodb: '4.4', mongoid: '8.0' }
 
-    name: test (ruby=${{ matrix.entry.ruby }}, mongodb=${{ matrix.entry.mongodb }}), gemfile=${{ matrix.entry.mongoid }})
+    name: test (ruby=${{ matrix.entry.ruby }}, mongodb=${{ matrix.entry.mongodb }}), mongoid=${{ matrix.entry.mongoid }})
 
     services:
       mongo:
-        image: ${{ matrix.mongodb }}
+        image: ${{ matrix.entry.mongodb }}
         ports: ['27017:27017']
 
     env:
-      MONGOID_VERSION: ${{ matrix.mongoid }}
+      MONGOID_VERSION: ${{ matrix.entry.mongoid }}
       COVERAGE: ${{ matrix.coverage }}
 
     steps:
@@ -33,7 +33,7 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby }}
+        ruby-version: ${{ matrix.entry.ruby }}
         bundler-cache: true
 
     - name: Checks
