@@ -1,75 +1,34 @@
-name: Test
-
-on:
-  push:
-    branches: [ master, github-actions ]
-  pull_request:
-    branches: [ master ]
+name: CI
+on: [push, pull_request]
 
 jobs:
   test:
-
-    strategy:
-      fail-fast: false
-      matrix:
-        mongo: ["mongo:3.6", "mongo:4.2"]
-        mongoid: ["5", "6", "7"]
-        ruby:
-        - 2.3.8
-        - 2.4.7
-        - 2.5.7
-        - 2.6.6
-        - 2.7.1
-        - jruby-9.1.17.0
-        - jruby-9.2.11.1
-        experimental: [false]
-        include:
-          - mongoid: "7"
-            ruby: "2.6.6"
-            coverage: "true"
-          - mongo: "mongo:4.2"
-            mongoid: "7"
-            ruby: "ruby-head"
-            experimental: true
-          - mongo: "mongo:4.2"
-            mongoid: "7"
-            ruby: "jruby-head"
-            experimental: true
-        exclude:
-          - ruby: "2.7.1"
-            mongoid: "5"
-
     runs-on: ubuntu-latest
-
-    continue-on-error: ${{ matrix.experimental }}
-
-    services:
-      mongo:
-        image: ${{ matrix.mongo }}
-        ports: ["27017:27017"]
-
+    strategy:
+      matrix:
+        entry:
+          - { ruby: '2.6', mongodb: '4.4', gemfile: 'mongoid-4.0', bundler: '1.17.3' }
+          - { ruby: '2.7', mongodb: '4.4', gemfile: 'mongoid-5.0', bundler: '1.17.3' }
+          - { ruby: '2.7', mongodb: '4.4', gemfile: 'mongoid-6.0' }
+          - { ruby: '2.7', mongodb: '4.4', gemfile: 'mongoid-7.0' }
+          - { ruby: '3.1', mongodb: '4.4', gemfile: 'mongoid-8.0' }
+    name: test (ruby=${{ matrix.entry.ruby }}, mongodb=${{ matrix.entry.mongodb }}), gemfile=${{ matrix.entry.gemfile }})
     env:
-      MONGOID_VERSION: ${{ matrix.mongoid }}
-      COVERAGE: ${{ matrix.coverage }}
-
+      BUNDLE_GEMFILE: gemfiles/${{ matrix.entry.gemfile }}.gemfile
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
-        bundler-cache: true
-
-    - name: Checks
-      if: ${{ matrix.coverage == 'true' }}
-      run: |
-        bundle exec rubocop
-        # Disabled until mongoid-danger is updated to support Github Actions
-        # bundle exec danger
-
-    - name: Run tests
-      run: bundle exec rspec
+      - name: Set up MongoDB ${{ matrix.entry.mongodb }}
+        uses: supercharge/mongodb-github-action@1.8.0
+        with:
+          mongodb-version: ${{ matrix.entry.mongodb }}
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.entry.ruby }}
+          bundler: '${{ matrix.entry.bundler || 1 }}'
+          bundler-cache: true
+      - name: Run tests
+        run: bundle exec rake
 
     - name: Code Climate
       if: ${{ env.CC_TEST_REPORTER_ID != '' && success() && matrix.coverage == 'true' }}
