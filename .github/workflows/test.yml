@@ -1,9 +1,11 @@
-name: CI
+name: Test
 on: [push, pull_request]
 
 jobs:
   test:
+
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         entry:
@@ -12,21 +14,26 @@ jobs:
           - { ruby: '2.7', mongodb: '4.4', gemfile: 'mongoid-6.0' }
           - { ruby: '2.7', mongodb: '4.4', gemfile: 'mongoid-7.0' }
           - { ruby: '3.1', mongodb: '4.4', gemfile: 'mongoid-8.0' }
+
     name: test (ruby=${{ matrix.entry.ruby }}, mongodb=${{ matrix.entry.mongodb }}), gemfile=${{ matrix.entry.gemfile }})
+
     env:
       BUNDLE_GEMFILE: gemfiles/${{ matrix.entry.gemfile }}.gemfile
+
     steps:
       - name: Set up MongoDB ${{ matrix.entry.mongodb }}
         uses: supercharge/mongodb-github-action@1.8.0
         with:
           mongodb-version: ${{ matrix.entry.mongodb }}
       - uses: actions/checkout@v2
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.entry.ruby }}
           bundler: '${{ matrix.entry.bundler || 1 }}'
           bundler-cache: true
+
       - name: Run tests
         run: bundle exec rake
 
