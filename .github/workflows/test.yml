@@ -32,7 +32,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.entry.ruby }}
-          bundler: '${{ matrix.entry.bundler || 1 }}'
+          bundler: '${{ matrix.entry.bundler || 2.2.20 }}'
           bundler-cache: true
 
       - name: Run tests
