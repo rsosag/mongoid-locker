@@ -14,7 +14,7 @@ jobs:
           - { ruby: '2.7', mongodb: '4.4', mongoid: '5.0', bundler: '1.17.3' }
           - { ruby: '2.7', mongodb: '4.4', mongoid: '6.0' }
           - { ruby: '2.7', mongodb: '4.4', mongoid: '7.0' }
-          - { ruby: '3.1', mongodb: '4.4', mongoid: '8.0' }
+          - { ruby: '3.1', mongodb: '4.4', mongoid: '7.0' }
 
     name: test (ruby=${{ matrix.entry.ruby }}, mongodb=${{ matrix.entry.mongodb }}), mongoid=${{ matrix.entry.mongoid }})
 
