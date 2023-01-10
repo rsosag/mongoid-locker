@@ -1,55 +1,34 @@
-name: Test
+name: CI
 
 on:
   push:
-    branches: [ master, github-actions ]
+    branches:
+      - master
   pull_request:
-    branches: [ master ]
 
 jobs:
   test:
 
-    strategy:
-      fail-fast: false
-      matrix:
-        mongo: ["mongo:3.6", "mongo:4.2"]
-        mongoid: ["5", "6", "7"]
-        ruby:
-        - 2.3.8
-        - 2.4.7
-        - 2.5.7
-        - 2.6.6
-        - 2.7.1
-        - jruby-9.1.17.0
-        - jruby-9.2.11.1
-        experimental: [false]
-        include:
-          - mongoid: "7"
-            ruby: "2.6.6"
-            coverage: "true"
-          - mongo: "mongo:4.2"
-            mongoid: "7"
-            ruby: "ruby-head"
-            experimental: true
-          - mongo: "mongo:4.2"
-            mongoid: "7"
-            ruby: "jruby-head"
-            experimental: true
-        exclude:
-          - ruby: "2.7.1"
-            mongoid: "5"
-
     runs-on: ubuntu-latest
 
-    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      matrix:
+        entry:
+          - { ruby: '2.6', mongodb: 'mongo:4.2', mongoid: '5.0', bundler: '1.17.3' }
+          - { ruby: '2.7', mongodb: 'mongo:4.2', mongoid: '5.0', bundler: '1.17.3' }
+          - { ruby: '2.7', mongodb: 'mongo:4.2', mongoid: '6.0' }
+          - { ruby: '2.7', mongodb: 'mongo:4.2', mongoid: '7.0' }
+          - { ruby: '3.1', mongodb: 'mongo:4.2', mongoid: '7.0' }
+
+    name: test (ruby=${{ matrix.entry.ruby }}, mongodb=${{ matrix.entry.mongodb }}), mongoid=${{ matrix.entry.mongoid }})
 
     services:
       mongo:
-        image: ${{ matrix.mongo }}
-        ports: ["27017:27017"]
+        image: ${{ matrix.entry.mongodb }}
+        ports: ['27017:27017']
 
     env:
-      MONGOID_VERSION: ${{ matrix.mongoid }}
+      MONGOID_VERSION: ${{ matrix.entry.mongoid }}
       COVERAGE: ${{ matrix.coverage }}
 
     steps:
@@ -58,7 +37,7 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby }}
+        ruby-version: ${{ matrix.entry.ruby }}
         bundler-cache: true
 
     - name: Checks
