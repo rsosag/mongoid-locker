@@ -21,6 +21,7 @@ group :development do
 end
 
 group :development, :test do
+  gem 'bigdecimal', '~> 1.3'
   gem 'pry-byebug', platforms: :mri
 
   gem 'mongoid-compatibility'
